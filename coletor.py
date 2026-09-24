@@ -1,16 +1,27 @@
+import os
 import urllib.request
-import xml.etree.ElementTree as ET
+import urllib.parse
 import json
 
 
 # ============================================================
-# FEEDS RSS
+# CONFIGURAÇÃO DA NEWSAPI
 # ============================================================
 
-FEEDS = {
-    "engenheiro": "https://news.google.com/rss/search?q=data+engineering&hl=en-US&gl=US&ceid=US:en",
-    "cientista": "https://news.google.com/rss/search?q=data+science+artificial+intelligence&hl=en-US&gl=US&ceid=US:en",
-    "analista": "https://news.google.com/rss/search?q=data+analytics+Power+BI&hl=en-US&gl=US&ceid=US:en"
+API_KEY = os.environ.get("NEWS_API_KEY")
+
+if not API_KEY:
+    raise Exception("NEWS_API_KEY não encontrada nas variáveis de ambiente.")
+
+
+# ============================================================
+# CATEGORIAS DE NOTÍCIAS
+# ============================================================
+
+CONSULTAS = {
+    "engenheiro": '"data engineering" OR "data engineer" OR "data pipeline"',
+    "cientista": '"data science" OR "artificial intelligence" OR "machine learning"',
+    "analista": '"data analytics" OR "Power BI" OR "business intelligence"'
 }
 
 
@@ -73,14 +84,37 @@ def classificar_ferramenta(titulo):
 
 
 # ============================================================
-# COLETAR CADA FEED
+# COLETAR NOTÍCIAS DA NEWSAPI
 # ============================================================
 
-for profissao, url in FEEDS.items():
+for profissao, consulta in CONSULTAS.items():
 
     print(f"Coletando: {profissao}")
 
     try:
+
+        # ----------------------------------------------------
+        # Monta os parâmetros da API
+        # ----------------------------------------------------
+
+        parametros = {
+            "q": consulta,
+            "language": "en",
+            "sortBy": "publishedAt",
+            "pageSize": "5",
+            "apiKey": API_KEY
+        }
+
+
+        # ----------------------------------------------------
+        # Monta a URL
+        # ----------------------------------------------------
+
+        url = (
+            "https://newsapi.org/v2/everything?"
+            + urllib.parse.urlencode(parametros)
+        )
+
 
         # ----------------------------------------------------
         # Faz a requisição
@@ -89,96 +123,87 @@ for profissao, url in FEEDS.items():
         req = urllib.request.Request(
             url,
             headers={
-                "User-Agent": "Mozilla/5.0"
+                "User-Agent": "DataNews-Hub"
             }
         )
+
 
         with urllib.request.urlopen(
             req,
             timeout=20
         ) as response:
 
-            xml_data = response.read()
+            dados = json.loads(
+                response.read().decode("utf-8")
+            )
 
 
         # ----------------------------------------------------
-        # Interpreta o XML
+        # Verifica resposta da API
         # ----------------------------------------------------
 
-        root = ET.fromstring(xml_data)
+        if dados.get("status") != "ok":
+
+            print(
+                f"  ERRO DA NEWSAPI: "
+                f"{dados.get('message', 'Erro desconhecido')}"
+            )
+
+            continue
 
 
-        # ----------------------------------------------------
-        # Encontra as notícias
-        # ----------------------------------------------------
-
-        itens = root.findall(".//item")
+        artigos = dados.get("articles", [])
 
         print(
-            f"  Notícias encontradas: {len(itens)}"
+            f"  Notícias encontradas: "
+            f"{len(artigos)}"
         )
 
 
-        # Limita a 5 notícias por categoria
+        # ----------------------------------------------------
+        # Processa as notícias
+        # ----------------------------------------------------
 
-        for item in itens[:5]:
+        for artigo in artigos:
 
-            # ------------------------------------------------
-            # TÍTULO
-            # ------------------------------------------------
+            titulo = artigo.get(
+                "title",
+                "Sem título"
+            )
 
-            elemento_titulo = item.find("title")
+            descricao = artigo.get(
+                "description"
+            )
 
-            if (
-                elemento_titulo is not None
-                and elemento_titulo.text
-            ):
+            link = artigo.get(
+                "url",
+                "#"
+            )
 
-                titulo = elemento_titulo.text.strip()
+            fonte_dados = artigo.get(
+                "source",
+                {}
+            )
 
-            else:
-
-                titulo = "Sem título"
-
-
-            # ------------------------------------------------
-            # LINK
-            # ------------------------------------------------
-
-            elemento_link = item.find("link")
-
-            if (
-                elemento_link is not None
-                and elemento_link.text
-            ):
-
-                link = elemento_link.text.strip()
-
-            else:
-
-                link = "#"
+            fonte = fonte_dados.get(
+                "name",
+                "Fonte desconhecida"
+            )
 
 
             # ------------------------------------------------
-            # FONTE
+            # Evita artigos sem título ou removidos
             # ------------------------------------------------
 
-            elemento_fonte = item.find("source")
+            if not titulo:
+                continue
 
-            if (
-                elemento_fonte is not None
-                and elemento_fonte.text
-            ):
-
-                fonte = elemento_fonte.text.strip()
-
-            else:
-
-                fonte = "Google News"
+            if titulo == "[Removed]":
+                continue
 
 
             # ------------------------------------------------
-            # CLASSIFICAÇÃO
+            # Classificação
             # ------------------------------------------------
 
             ferramenta_detectada, tag_detectada = (
@@ -187,7 +212,30 @@ for profissao, url in FEEDS.items():
 
 
             # ------------------------------------------------
-            # CRIA A NOTÍCIA
+            # Resumo
+            # ------------------------------------------------
+
+            if descricao:
+
+                resumo_pt = descricao
+
+                resumo_en = descricao
+
+            else:
+
+                resumo_pt = (
+                    "Leia a matéria completa "
+                    "na fonte original."
+                )
+
+                resumo_en = (
+                    "Read the full article "
+                    "at the original source."
+                )
+
+
+            # ------------------------------------------------
+            # Cria a notícia
             # ------------------------------------------------
 
             noticia = {
@@ -204,11 +252,9 @@ for profissao, url in FEEDS.items():
 
                 "titulo_en": titulo,
 
-                "resumo_pt":
-                    "Leia a matéria completa na fonte original.",
+                "resumo_pt": resumo_pt,
 
-                "resumo_en":
-                    "Read the full article at the original source.",
+                "resumo_en": resumo_en,
 
                 "fonte": fonte,
 
