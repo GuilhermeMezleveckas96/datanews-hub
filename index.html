@@ -1,151 +1,742 @@
+html
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>DataNews Hub - O Jornal do Profissional de Dados</title>
-    <script src="https://tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cloudflare.com">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
+
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
 
     <!-- HEADER / TOPO -->
-    <header class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <header class="bg-gray-800 border-b border-gray-700 px-6 py-4
+                   flex flex-col sm:flex-row justify-between items-center gap-4">
+
         <div class="flex items-center gap-3">
-            <div class="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">📊 DN</div>
-            <h1 class="text-xl font-bold tracking-tight">DataNews <span class="text-blue-500">Hub</span></h1>
+
+            <div class="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">
+                📊 DN
+            </div>
+
+            <h1 class="text-xl font-bold tracking-tight">
+                DataNews <span class="text-blue-500">Hub</span>
+            </h1>
+
         </div>
-        
+
+        <!-- FILTROS SUPERIORES -->
         <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-            <select id="search-profissao" class="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 w-full sm:w-40">
+
+            <!-- Filtro profissão -->
+            <select
+                id="search-profissao"
+                class="bg-gray-700 border border-gray-600 rounded
+                       px-3 py-1.5 text-sm focus:outline-none
+                       focus:border-blue-500 w-full sm:w-40">
+
                 <option value="all">Todas Profissões</option>
                 <option value="engenheiro">Eng. de Dados</option>
                 <option value="analista">Analista de Dados</option>
                 <option value="cientista">Cientista / IA</option>
+
             </select>
-            
-            <button id="lang-switch" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-1.5 rounded transition flex items-center gap-2">
-                <i class="fa-solid fa-language"></i> <span id="lang-text">Mudar para Inglês</span>
+
+            <!-- Filtro ferramenta -->
+            <select
+                id="search-ferramenta"
+                class="bg-gray-700 border border-gray-600 rounded
+                       px-3 py-1.5 text-sm focus:outline-none
+                       focus:border-blue-500 w-full sm:w-40">
+
+                <option value="all">Todas Ferramentas</option>
+                <option value="python">Python</option>
+                <option value="sql">SQL</option>
+                <option value="powerbi">Power BI</option>
+                <option value="openai">OpenAI / IA</option>
+
+            </select>
+
+            <!-- Troca de idioma -->
+            <button
+                id="lang-switch"
+                class="bg-blue-600 hover:bg-blue-700 text-white
+                       font-medium text-sm px-4 py-1.5 rounded
+                       transition flex items-center gap-2">
+
+                <i class="fa-solid fa-language"></i>
+
+                <span id="lang-text">
+                    Mudar para Inglês
+                </span>
+
             </button>
+
         </div>
+
     </header>
+
 
     <!-- CORPO PRINCIPAL -->
     <div class="flex flex-1 flex-col md:flex-row">
-        
-        <!-- SIDEBAR ESQUERDA -->
-        <aside class="w-full md:w-64 bg-gray-800/50 p-6 border-r border-gray-800 flex flex-col gap-6">
+
+
+        <!-- SIDEBAR -->
+        <aside
+            class="w-full md:w-64 bg-gray-800/50 p-6
+                   border-r border-gray-800 flex flex-col gap-6">
+
+            <!-- PERFIS -->
             <div>
-                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Filtrar por Perfil</h2>
+
+                <h2
+                    class="text-xs font-semibold text-gray-400
+                           uppercase tracking-wider mb-3">
+
+                    Filtrar por Perfil
+
+                </h2>
+
                 <div class="flex flex-col gap-2">
-                    <button onclick="filtrarCategoria('all')" class="sidebar-btn bg-gray-700 text-white text-left px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i class="fa-solid fa-database text-blue-500"></i> Todos os Perfis</button>
-                    <button onclick="filtrarCategoria('engenheiro')" class="sidebar-btn text-gray-300 hover:bg-gray-800 text-left px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i class="fa-solid fa-gear text-purple-400"></i> Eng. de Dados</button>
-                    <button onclick="filtrarCategoria('analista')" class="sidebar-btn text-gray-300 hover:bg-gray-800 text-left px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i class="fa-solid fa-chart-column text-green-400"></i> Analista de Dados</button>
-                    <button onclick="filtrarCategoria('cientista')" class="sidebar-btn text-gray-300 hover:bg-gray-800 text-left px-3 py-2 rounded text-sm font-medium flex items-center gap-2 transition"><i class="fa-solid fa-brain text-pink-400"></i> Cientista / IA</button>
+
+                    <button
+                        onclick="filtrarCategoria('profissao', 'all')"
+                        class="sidebar-btn bg-gray-700 text-white
+                               text-left px-3 py-2 rounded text-sm
+                               font-medium flex items-center gap-2 transition">
+
+                        <i class="fa-solid fa-database text-blue-500"></i>
+
+                        Todos os Perfis
+
+                    </button>
+
+
+                    <button
+                        onclick="filtrarCategoria('profissao', 'engenheiro')"
+                        class="sidebar-btn text-gray-300 hover:bg-gray-800
+                               text-left px-3 py-2 rounded text-sm
+                               font-medium flex items-center gap-2 transition">
+
+                        <i class="fa-solid fa-gear text-purple-400"></i>
+
+                        Eng. de Dados
+
+                    </button>
+
+
+                    <button
+                        onclick="filtrarCategoria('profissao', 'analista')"
+                        class="sidebar-btn text-gray-300 hover:bg-gray-800
+                               text-left px-3 py-2 rounded text-sm
+                               font-medium flex items-center gap-2 transition">
+
+                        <i class="fa-solid fa-chart-column text-green-400"></i>
+
+                        Analista de Dados
+
+                    </button>
+
+
+                    <button
+                        onclick="filtrarCategoria('profissao', 'cientista')"
+                        class="sidebar-btn text-gray-300 hover:bg-gray-800
+                               text-left px-3 py-2 rounded text-sm
+                               font-medium flex items-center gap-2 transition">
+
+                        <i class="fa-solid fa-brain text-pink-400"></i>
+
+                        Cientista / IA
+
+                    </button>
+
                 </div>
+
             </div>
+
+
+            <!-- FERRAMENTAS -->
+            <div>
+
+                <h2
+                    class="text-xs font-semibold text-gray-400
+                           uppercase tracking-wider mb-3">
+
+                    Principais Ferramentas
+
+                </h2>
+
+
+                <div class="grid grid-cols-2 gap-2">
+
+                    <button
+                        onclick="filtrarCategoria('ferramenta', 'python')"
+                        class="bg-gray-800 border border-gray-700
+                               hover:border-blue-500 p-3 rounded
+                               flex flex-col items-center justify-center
+                               gap-2 transition text-xs">
+
+                        <i class="fa-brands fa-python text-2xl text-yellow-400"></i>
+
+                        Python
+
+                    </button>
+
+
+                    <button
+                        onclick="filtrarCategoria('ferramenta', 'sql')"
+                        class="bg-gray-800 border border-gray-700
+                               hover:border-blue-500 p-3 rounded
+                               flex flex-col items-center justify-center
+                               gap-2 transition text-xs">
+
+                        <i class="fa-solid fa-table text-2xl text-blue-400"></i>
+
+                        SQL
+
+                    </button>
+
+
+                    <button
+                        onclick="filtrarCategoria('ferramenta', 'powerbi')"
+                        class="bg-gray-800 border border-gray-700
+                               hover:border-blue-500 p-3 rounded
+                               flex flex-col items-center justify-center
+                               gap-2 transition text-xs">
+
+                        <i class="fa-solid fa-chart-pie text-2xl text-yellow-500"></i>
+
+                        Power BI
+
+                    </button>
+
+
+                    <button
+                        onclick="filtrarCategoria('ferramenta', 'openai')"
+                        class="bg-gray-800 border border-gray-700
+                               hover:border-blue-500 p-3 rounded
+                               flex flex-col items-center justify-center
+                               gap-2 transition text-xs">
+
+                        <i class="fa-solid fa-robot text-2xl text-cyan-400"></i>
+
+                        AI Tools
+
+                    </button>
+
+                </div>
+
+            </div>
+
         </aside>
+
 
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="flex-1 p-6 lg:p-8">
+
             <div class="max-w-4xl mx-auto">
-                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">📰 Últimas Atualizações do Mercado</h2>
-                <div id="news-container" class="space-y-6">
-                    <div class="text-center p-8 text-gray-400">Carregando notícias reais...</div>
+
+                <h2
+                    class="text-2xl font-bold mb-6 flex items-center gap-2">
+
+                    📰 Últimas Atualizações do Mercado
+
+                </h2>
+
+
+                <!-- NOTÍCIAS -->
+                <div
+                    id="news-container"
+                    class="space-y-6">
+
+                    <div class="text-center p-8 text-gray-400">
+
+                        Carregando notícias reais...
+
+                    </div>
+
                 </div>
+
             </div>
+
         </main>
+
     </div>
 
-    <!-- BANNER INFERIOR -->
-    <footer class="bg-blue-950/60 border-t border-blue-900/50 p-4 text-center text-sm text-blue-200">
-        <p class="flex items-center justify-center gap-2 flex-wrap">
-            <span class="bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-bold">ENGLISH TIP</span> 
-            Dica do dia para dados: <strong>"Pipeline"</strong> significa tubulação, mas em dados é o fluxo automático de movimentação e transformação de dados.
+
+    <!-- FOOTER -->
+    <footer
+        class="bg-blue-950/60 border-t border-blue-900/50
+               p-4 text-center text-sm text-blue-200">
+
+        <p
+            class="flex items-center justify-center gap-2 flex-wrap">
+
+            <span
+                class="bg-blue-600 text-white text-xs px-2 py-0.5
+                       rounded font-bold">
+
+                ENGLISH TIP
+
+            </span>
+
+            Dica do dia para dados:
+
+            <strong>"Pipeline"</strong>
+
+            significa tubulação, mas em dados é o fluxo automático
+            de movimentação e transformação de dados.
+
         </p>
+
     </footer>
 
-    <!-- JAVASCRIPT CONECTANDO COM O ARQUIVO DO PYTHON -->
+
+    <!-- JAVASCRIPT -->
     <script>
+
+        // =========================================================
+        // VARIÁVEIS GLOBAIS
+        // =========================================================
+
         let bancoNoticias = [];
+
         let idiomaAtual = 'pt';
+
         let perfilAtivo = 'all';
 
-        // BUSCA O ARQUIVO GERADO PELO PYTHON
+        let ferramentaAtiva = 'all';
+
+
+        // =========================================================
+        // CARREGAR JSON GERADO PELO PYTHON
+        // =========================================================
+
         async function carregarDadosDoPython() {
+
             try {
-                // Ele tenta ler o arquivo noticias.json gerado no repositório
+
                 const resposta = await fetch('noticias.json');
-                if (!resposta.ok) throw new Error();
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        'Não foi possível carregar noticias.json'
+                    );
+
+                }
+
                 bancoNoticias = await resposta.json();
+
                 renderizarNoticias();
-            } catch (erro) {
-                document.getElementById('news-container').innerHTML = `
-                    <div class="text-center p-8 bg-gray-800 rounded text-yellow-400 border border-yellow-600/30">
-                        <i class="fa-solid fa-triangle-exclamation text-2xl mb-2"></i><br>
-                        O arquivo 'noticias.json' ainda não foi gerado pelo robô Python.<br>
-                        Aguarde a execução do GitHub Actions para ver notícias reais!
-                    </div>`;
+
             }
+
+            catch (erro) {
+
+                console.error(
+                    'Erro ao carregar notícias:',
+                    erro
+                );
+
+                document
+                    .getElementById('news-container')
+                    .innerHTML = `
+
+                    <div
+                        class="text-center p-8 bg-gray-800 rounded
+                               text-yellow-400
+                               border border-yellow-600/30">
+
+                        <i
+                            class="fa-solid fa-triangle-exclamation
+                                   text-2xl mb-2">
+                        </i>
+
+                        <br>
+
+                        O arquivo
+                        <strong>'noticias.json'</strong>
+                        ainda não foi gerado pelo robô Python.
+
+                        <br>
+
+                        Aguarde a execução do GitHub Actions
+                        para ver notícias reais!
+
+                    </div>
+
+                `;
+
+            }
+
         }
+
+
+        // =========================================================
+        // RETORNA O ÍCONE DA FERRAMENTA
+        // =========================================================
+
+        function obterIconeFerramenta(ferramenta) {
+
+            switch (ferramenta) {
+
+                case 'python':
+
+                    return 'fa-brands fa-python text-yellow-400';
+
+
+                case 'sql':
+
+                    return 'fa-solid fa-table text-blue-400';
+
+
+                case 'powerbi':
+
+                    return 'fa-solid fa-chart-pie text-yellow-500';
+
+
+                case 'openai':
+
+                    return 'fa-solid fa-robot text-cyan-400';
+
+
+                default:
+
+                    return 'fa-solid fa-database text-gray-400';
+
+            }
+
+        }
+
+
+        // =========================================================
+        // RENDERIZAR NOTÍCIAS
+        // =========================================================
 
         function renderizarNoticias() {
-            const container = document.getElementById('news-container');
+
+            const container =
+                document.getElementById('news-container');
+
+
+            // Limpa os cards anteriores
+
             container.innerHTML = '';
 
-            const buscaTopo = document.getElementById('search-profissao').value;
-            
-            const noticiasFiltradas = bancoNoticias.filter(noticia => {
-                if (perfilAtivo !== 'all' && noticia.profissao !== perfilAtivo) return false;
-                if (buscaTopo !== 'all' && noticia.profissao !== buscaTopo) return false;
-                return true;
-            });
+
+            // Aplica os filtros
+
+            const noticiasFiltradas =
+                bancoNoticias.filter(noticia => {
+
+                    if (
+                        perfilAtivo !== 'all' &&
+                        noticia.profissao !== perfilAtivo
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    if (
+                        ferramentaAtiva !== 'all' &&
+                        noticia.ferramenta !== ferramentaAtiva
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    return true;
+
+                });
+
+
+            // Nenhuma notícia encontrada
 
             if (noticiasFiltradas.length === 0) {
-                container.innerHTML = `<div class="text-center p-8 bg-gray-800 rounded text-gray-400">Nenhuma notícia encontrada para esta categoria.</div>`;
+
+                container.innerHTML = `
+
+                    <div
+                        class="text-center p-8 bg-gray-800
+                               rounded text-gray-400">
+
+                        Nenhuma notícia encontrada
+                        para esta categoria.
+
+                    </div>
+
+                `;
+
                 return;
+
             }
 
+
+            // Cria cada notícia
+
             noticiasFiltradas.forEach(noticia => {
-                const titulo = idiomaAtual === 'pt' ? noticia.titulo_pt : noticia.titulo_en;
-                const resumo = idiomaAtual === 'pt' ? noticia.resumo_pt : noticia.resumo_en;
-                
-                const card = document.createElement('article');
-                card.className = "bg-gray-800 p-6 rounded-xl border border-gray-700/60 shadow-md hover:border-gray-600 transition flex flex-col gap-3";
+
+
+                // Idioma
+
+                const titulo =
+                    idiomaAtual === 'pt'
+                        ? noticia.titulo_pt
+                        : noticia.titulo_en;
+
+
+                const resumo =
+                    idiomaAtual === 'pt'
+                        ? noticia.resumo_pt
+                        : noticia.resumo_en;
+
+
+                // Ícone
+
+                const iconeFerramenta =
+                    obterIconeFerramenta(
+                        noticia.ferramenta
+                    );
+
+
+                // Cria o card
+
+                const card =
+                    document.createElement('article');
+
+
+                card.className =
+                    `bg-gray-800 p-6 rounded-xl
+                     border border-gray-700/60
+                     shadow-md hover:border-gray-600
+                     transition flex flex-col gap-4`;
+
+
+                // Conteúdo do card
+
                 card.innerHTML = `
-                    <div class="flex justify-between items-center gap-2">
-                        <span class="bg-blue-500/10 text-blue-400 text-xs font-semibold px-2.5 py-1 rounded-full uppercase">${noticia.tag}</span>
-                        <span class="text-xs text-gray-500 font-medium uppercase"><i class="fa-solid fa-user-tag"></i> ${noticia.profissao}</span>
+
+                    <!-- CABEÇALHO -->
+
+                    <div
+                        class="flex justify-between
+                               items-center gap-3">
+
+                        <span
+                            class="bg-blue-500/10
+                                   text-blue-400
+                                   text-xs font-semibold
+                                   px-2.5 py-1
+                                   rounded-full uppercase">
+
+                            ${noticia.tag || 'NOTÍCIA'}
+
+                        </span>
+
+
+                        <i
+                            class="${iconeFerramenta}
+                                   text-xl">
+
+                        </i>
+
                     </div>
-                    <h3 class="text-lg font-bold leading-snug text-white">${titulo}</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">${resumo}</p>
-                    <div class="flex justify-between items-center border-t border-gray-700/50 pt-3 mt-1 text-xs">
-                        <span class="text-gray-500">Fonte: <strong class="text-gray-400">${noticia.fonte}</strong></span>
-                        <a href="${noticia.link}" target="_blank" class="text-blue-400 hover:underline flex items-center gap-1 font-medium">Ler matéria <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+
+
+                    <!-- TÍTULO -->
+
+                    <h3
+                        class="text-lg font-bold
+                               text-white leading-snug">
+
+                        ${titulo || 'Sem título'}
+
+                    </h3>
+
+
+                    <!-- RESUMO -->
+
+                    <p
+                        class="text-gray-400
+                               text-sm leading-relaxed">
+
+                        ${resumo || 'Sem resumo disponível.'}
+
+                    </p>
+
+
+                    <!-- RODAPÉ DO CARD -->
+
+                    <div
+                        class="flex justify-between
+                               items-center gap-3
+                               mt-2 pt-3
+                               border-t border-gray-700">
+
+                        <span
+                            class="text-xs text-gray-500">
+
+                            Fonte:
+                            ${noticia.fonte || 'Não informada'}
+
+                        </span>
+
+
+                        ${
+                            noticia.url
+                                ? `
+                                    <a
+                                        href="${noticia.url}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="text-blue-400
+                                               hover:text-blue-300
+                                               text-sm font-medium
+                                               transition">
+
+                                        Ler matéria →
+
+                                    </a>
+                                  `
+                                : `
+                                    <span
+                                        class="text-gray-600
+                                               text-xs">
+
+                                        Link indisponível
+
+                                    </span>
+                                  `
+                        }
+
                     </div>
+
                 `;
+
+
+                // Adiciona o card na página
+
                 container.appendChild(card);
+
             });
+
         }
 
-        function filtrarCategoria(valor) {
-            perfilAtivo = valor;
+
+        // =========================================================
+        // FILTROS DA SIDEBAR
+        // =========================================================
+
+        function filtrarCategoria(tipo, valor) {
+
+
+            if (tipo === 'profissao') {
+
+                perfilAtivo = valor;
+
+                document
+                    .getElementById('search-profissao')
+                    .value = valor;
+
+            }
+
+
+            else if (tipo === 'ferramenta') {
+
+                ferramentaAtiva = valor;
+
+                document
+                    .getElementById('search-ferramenta')
+                    .value = valor;
+
+            }
+
+
             renderizarNoticias();
+
         }
 
-        document.getElementById('lang-switch').addEventListener('click', () => {
-            idiomaAtual = idiomaAtual === 'pt' ? 'en' : 'pt';
-            document.getElementById('lang-text').innerText = idiomaAtual === 'pt' ? 'Mudar para Inglês' : 'Change to Portuguese';
-            renderizarNoticias();
-        });
 
-        document.getElementById('search-profissao').addEventListener('change', (e) => {
-            perfilAtivo = e.target.value;
-            renderizarNoticias();
-        });
+        // =========================================================
+        // FILTRO DE PROFISSÃO
+        // =========================================================
 
-        // Executa ao abrir a página
+        document
+            .getElementById('search-profissao')
+            .addEventListener('change', function (e) {
+
+                perfilAtivo = e.target.value;
+
+                renderizarNoticias();
+
+            });
+
+
+        // =========================================================
+        // FILTRO DE FERRAMENTA
+        // =========================================================
+
+        document
+            .getElementById('search-ferramenta')
+            .addEventListener('change', function (e) {
+
+                ferramentaAtiva = e.target.value;
+
+                renderizarNoticias();
+
+            });
+
+
+        // =========================================================
+        // TROCA DE IDIOMA
+        // =========================================================
+
+        document
+            .getElementById('lang-switch')
+            .addEventListener('click', function () {
+
+
+                idiomaAtual =
+                    idiomaAtual === 'pt'
+                        ? 'en'
+                        : 'pt';
+
+
+                document
+                    .getElementById('lang-text')
+                    .innerText =
+                        idiomaAtual === 'pt'
+                            ? 'Mudar para Inglês'
+                            : 'Change to Portuguese';
+
+
+                renderizarNoticias();
+
+            });
+
+
+        // =========================================================
+        // INICIALIZAÇÃO
+        // =========================================================
+
         carregarDadosDoPython();
+
     </script>
+
 </body>
+
 </html>
