@@ -2,7 +2,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import json
 
-# Lista de feeds RSS de tecnologia/dados para testar
+# Lista de feeds RSS focados em dados
 FEEDS = {
     "engenheiro": "https://google.com",
     "cientista": "https://google.com",
@@ -12,36 +12,51 @@ FEEDS = {
 banco_noticias = []
 id_contador = 1
 
-print("Iniciando coleta de notícias...")
+print("Iniciando coleta com classificação de ferramentas...")
 
 for profissao, url in FEEDS.items():
     try:
-        # Baixa o XML do feed RSS
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req) as response:
             xml_data = response.read()
         
-        # Parseia o XML
         root = ET.fromstring(xml_data)
         
-        # Pega as 3 primeiras notícias de cada feed para o MVP
-        for item in root.findall('.//item')[:3]:
+        # Coleta as principais notícias de cada feed
+        for item in root.findall('.//item')[:5]:
             titulo = item.find('title').text if item.find('title') is not None else "Sem título"
             link = item.find('link').text if item.find('link') is not None else "#"
             fonte = item.find('source').text if item.find('source') is not None else "Google News"
             
-            # Estrutura igualzinha ao que o nosso site espera receber
+            # Inteligência de Tags: Identifica a ferramenta pelo título da notícia
+            titulo_minusculo = titulo.lower()
+            ferramenta_detectada = "Geral"
+            tag_detectada = "Atualidade"
+
+            if "python" in titulo_minusculo:
+                ferramenta_detectada = "python"
+                tag_detectada = "Code"
+            elif "sql" in titulo_minusculo or "banco de dados" in titulo_minusculo:
+                ferramenta_detectada = "sql"
+                tag_detectada = "Query"
+            elif "power bi" in titulo_minusculo or "bi" in titulo_minusculo or "dashboard" in titulo_minusculo:
+                ferramenta_detectada = "powerbi"
+                tag_detectada = "Analytics"
+            elif "openai" in titulo_minusculo or "chatgpt" in titulo_minusculo or "ia" in titulo_minusculo or "ai" in titulo_minusculo:
+                ferramenta_detectada = "openai"
+                tag_detectada = "Artificial Intelligence"
+
             noticia = {
                 "id": id_contador,
                 "profissao": profissao,
-                "ferramenta": "Geral",
+                "ferramenta": herramienta_detectada,
                 "titulo_pt": titulo,
-                "titulo_en": f"[EN] {titulo} (Click to read official source)", # Provisório até colocarmos tradução técnica
-                "resumo_pt": "Clique no link abaixo para ler a matéria completa diretamente no portal oficial da fonte.",
-                "resumo_en": "Click the link below to read the full article directly on the official source website.",
+                "titulo_en": f"[EN] {titulo} (Official Source)",
+                "resumo_pt": "Clique no link de leitura para conferir todos os detalhes técnicos diretamente no portal oficial desta notícia.",
+                "resumo_en": "Click on the reading link to check all technical details directly on the official news portal.",
                 "fonte": fonte,
                 "link": link,
-                "tag": "Atualidade"
+                "tag": tag_detectada
             }
             banco_noticias.append(noticia)
             id_contador += 1
@@ -49,8 +64,8 @@ for profissao, url in FEEDS.items():
     except Exception as e:
         print(f"Erro ao coletar do perfil {profissao}: {e}")
 
-# Salva todas as notícias reais encontradas em um arquivo JSON
+# Salva o arquivo JSON atualizado
 with open('noticias.json', 'w', encoding='utf-8') as f:
     json.dump(banco_noticias, f, ensure_ascii=False, indent=4)
 
-print(f"Sucesso! {len(banco_noticias)} notícias reais foram salvas no arquivo noticias.json.")
+print(f"Sucesso! {len(banco_noticias)} notícias foram devidamente categorizadas.")
