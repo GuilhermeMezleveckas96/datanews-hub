@@ -1,4 +1,4 @@
-```python
+python
 import urllib.request
 import xml.etree.ElementTree as ET
 import json
@@ -264,4 +264,3 @@ print(
 print("Arquivo noticias.json atualizado.")
 
 print("==========================================")
-```
