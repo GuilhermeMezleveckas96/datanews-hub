@@ -1,71 +1,267 @@
+```python
 import urllib.request
 import xml.etree.ElementTree as ET
 import json
 
-# Lista de feeds RSS focados em dados
+
+# ============================================================
+# FEEDS RSS
+# ============================================================
+
 FEEDS = {
-    "engenheiro": "https://google.com",
-    "cientista": "https://google.com",
-    "analista": "https://google.com"
+    "engenheiro": "https://news.google.com/rss/search?q=data+engineering&hl=en-US&gl=US&ceid=US:en",
+    "cientista": "https://news.google.com/rss/search?q=data+science+artificial+intelligence&hl=en-US&gl=US&ceid=US:en",
+    "analista": "https://news.google.com/rss/search?q=data+analytics+Power+BI&hl=en-US&gl=US&ceid=US:en"
 }
 
+
+# ============================================================
+# BANCO DE NOTÍCIAS
+# ============================================================
+
 banco_noticias = []
+
 id_contador = 1
 
-print("Iniciando coleta com classificação de ferramentas...")
+
+print("==========================================")
+print("     DATANEWS - COLETOR DE NOTÍCIAS")
+print("==========================================")
+print()
+
+
+# ============================================================
+# CLASSIFICAÇÃO DA FERRAMENTA
+# ============================================================
+
+def classificar_ferramenta(titulo):
+
+    titulo_minusculo = titulo.lower()
+
+    if "python" in titulo_minusculo:
+
+        return "python", "Code"
+
+    elif (
+        "sql" in titulo_minusculo
+        or "database" in titulo_minusculo
+        or "banco de dados" in titulo_minusculo
+    ):
+
+        return "sql", "Query"
+
+    elif (
+        "power bi" in titulo_minusculo
+        or "powerbi" in titulo_minusculo
+        or "dashboard" in titulo_minusculo
+    ):
+
+        return "powerbi", "Analytics"
+
+    elif (
+        "openai" in titulo_minusculo
+        or "chatgpt" in titulo_minusculo
+        or "artificial intelligence" in titulo_minusculo
+        or "ai" in titulo_minusculo
+        or "inteligência artificial" in titulo_minusculo
+    ):
+
+        return "openai", "Artificial Intelligence"
+
+    else:
+
+        return "geral", "Atualidade"
+
+
+# ============================================================
+# COLETAR CADA FEED
+# ============================================================
 
 for profissao, url in FEEDS.items():
-    try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req) as response:
-            xml_data = response.read()
-        
-        root = ET.fromstring(xml_data)
-        
-        # Coleta as principais notícias de cada feed
-        for item in root.findall('.//item')[:5]:
-            titulo = item.find('title').text if item.find('title') is not None else "Sem título"
-            link = item.find('link').text if item.find('link') is not None else "#"
-            fonte = item.find('source').text if item.find('source') is not None else "Google News"
-            
-            # Inteligência de Tags: Identifica a ferramenta pelo título da notícia
-            titulo_minusculo = titulo.lower()
-            ferramenta_detectada = "Geral"
-            tag_detectada = "Atualidade"
 
-            if "python" in titulo_minusculo:
-                ferramenta_detectada = "python"
-                tag_detectada = "Code"
-            elif "sql" in titulo_minusculo or "banco de dados" in titulo_minusculo:
-                ferramenta_detectada = "sql"
-                tag_detectada = "Query"
-            elif "power bi" in titulo_minusculo or "bi" in titulo_minusculo or "dashboard" in titulo_minusculo:
-                ferramenta_detectada = "powerbi"
-                tag_detectada = "Analytics"
-            elif "openai" in titulo_minusculo or "chatgpt" in titulo_minusculo or "ia" in titulo_minusculo or "ai" in titulo_minusculo:
-                ferramenta_detectada = "openai"
-                tag_detectada = "Artificial Intelligence"
+    print(f"Coletando: {profissao}")
+
+    try:
+
+        # ----------------------------------------------------
+        # Faz a requisição
+        # ----------------------------------------------------
+
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+
+        with urllib.request.urlopen(
+            req,
+            timeout=20
+        ) as response:
+
+            xml_data = response.read()
+
+
+        # ----------------------------------------------------
+        # Interpreta o XML
+        # ----------------------------------------------------
+
+        root = ET.fromstring(xml_data)
+
+
+        # ----------------------------------------------------
+        # Encontra as notícias
+        # ----------------------------------------------------
+
+        itens = root.findall(".//item")
+
+        print(
+            f"  Notícias encontradas: {len(itens)}"
+        )
+
+
+        # Limita a 5 notícias por categoria
+
+        for item in itens[:5]:
+
+            # ------------------------------------------------
+            # TÍTULO
+            # ------------------------------------------------
+
+            elemento_titulo = item.find("title")
+
+            if (
+                elemento_titulo is not None
+                and elemento_titulo.text
+            ):
+
+                titulo = elemento_titulo.text.strip()
+
+            else:
+
+                titulo = "Sem título"
+
+
+            # ------------------------------------------------
+            # LINK
+            # ------------------------------------------------
+
+            elemento_link = item.find("link")
+
+            if (
+                elemento_link is not None
+                and elemento_link.text
+            ):
+
+                link = elemento_link.text.strip()
+
+            else:
+
+                link = "#"
+
+
+            # ------------------------------------------------
+            # FONTE
+            # ------------------------------------------------
+
+            elemento_fonte = item.find("source")
+
+            if (
+                elemento_fonte is not None
+                and elemento_fonte.text
+            ):
+
+                fonte = elemento_fonte.text.strip()
+
+            else:
+
+                fonte = "Google News"
+
+
+            # ------------------------------------------------
+            # CLASSIFICAÇÃO
+            # ------------------------------------------------
+
+            ferramenta_detectada, tag_detectada = (
+                classificar_ferramenta(titulo)
+            )
+
+
+            # ------------------------------------------------
+            # CRIA A NOTÍCIA
+            # ------------------------------------------------
 
             noticia = {
+
                 "id": id_contador,
+
                 "profissao": profissao,
-                "ferramenta": herramienta_detectada,
+
+                "ferramenta": ferramenta_detectada,
+
+                "tag": tag_detectada,
+
                 "titulo_pt": titulo,
-                "titulo_en": f"[EN] {titulo} (Official Source)",
-                "resumo_pt": "Clique no link de leitura para conferir todos os detalhes técnicos diretamente no portal oficial desta notícia.",
-                "resumo_en": "Click on the reading link to check all technical details directly on the official news portal.",
+
+                "titulo_en": titulo,
+
+                "resumo_pt":
+                    "Leia a matéria completa na fonte original.",
+
+                "resumo_en":
+                    "Read the full article at the original source.",
+
                 "fonte": fonte,
-                "link": link,
-                "tag": tag_detectada
+
+                "url": link
             }
+
+
             banco_noticias.append(noticia)
+
             id_contador += 1
-            
+
+
     except Exception as e:
-        print(f"Erro ao coletar do perfil {profissao}: {e}")
 
-# Salva o arquivo JSON atualizado
-with open('noticias.json', 'w', encoding='utf-8') as f:
-    json.dump(banco_noticias, f, ensure_ascii=False, indent=4)
+        print(
+            f"  ERRO: {e}"
+        )
 
-print(f"Sucesso! {len(banco_noticias)} notícias foram devidamente categorizadas.")
+
+    print()
+
+
+# ============================================================
+# SALVA O JSON
+# ============================================================
+
+with open(
+    "noticias.json",
+    "w",
+    encoding="utf-8"
+) as arquivo:
+
+    json.dump(
+        banco_noticias,
+        arquivo,
+        ensure_ascii=False,
+        indent=4
+    )
+
+
+# ============================================================
+# RESULTADO
+# ============================================================
+
+print("==========================================")
+
+print(
+    f"Total de notícias coletadas: "
+    f"{len(banco_noticias)}"
+)
+
+print("Arquivo noticias.json atualizado.")
+
+print("==========================================")
+```
