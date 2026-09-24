@@ -1,0 +1,32 @@
+name: Executar Coletor de Noticias Diario
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Roda automaticamente todo dia à meia-noite
+  workflow_dispatch: # Permite que você clique em um botão para rodar manualmente
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Libera escrita direto pelo código
+
+    steps:
+    - name: Clonar o repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar o Python no servidor
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Executar o script de coleta de noticias
+      run: python coletor.py
+
+    - name: Salvar e publicar as novas noticias no GitHub
+      run: |
+        git config --global user.email "datanews-bot@github.com"
+        git config --global user.name "DataNews Robot"
+        git add noticias.json
+        git commit -m "🤖 Noticias atualizadas pelo robo de dados" || echo "Sem mudanças para commitar"
+        git push
