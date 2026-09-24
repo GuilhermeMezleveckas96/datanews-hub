@@ -21,6 +21,8 @@ jobs:
         python-version: '3.10'
 
     - name: Executar o script de coleta de noticias
+      env:
+        NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
       run: python coletor.py
 
     - name: Salvar e publicar as novas noticias no GitHub
